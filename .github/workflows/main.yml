@@ -20,4 +20,4 @@ jobs:
       - name: install dependencies
         run: npm install
       - name: build anguler app
-        run: npm run build
+        run: npm start
