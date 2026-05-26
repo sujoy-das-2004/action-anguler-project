@@ -7,12 +7,16 @@ on:
 jobs:
   build-anguler-app:
     runs-on: ubuntu-latest
+    
     steps:
       - uses: actions/checkout@v6.0.2
+
+      
       - name: Setup Node.js
-      - uses: actions/setup-node@v6.4.0
+        uses: actions/setup-node@v6.4.0
         with:
-          node-version:22.x
+          node-version: 22.x
+          
       - name: install dependencies
         run: npm install
       - name: build anguler app
