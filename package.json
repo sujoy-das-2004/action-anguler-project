@@ -10,8 +10,6 @@
     "build": "gulp build"
   },
 
-  "devDependencies": {},
-
   "dependencies": {
     "angular": "^1.5.0-rc.2",
     "angular-ui-router": "^0.4.2",
@@ -20,8 +18,8 @@
     "browser-sync": "^2.11.1",
     "browserify": "^13.0.0",
     "browserify-ngannotate": "^2.0.0",
-    "gulp": "^4.0.2",
     "graceful-fs": "^4.2.11",
+    "gulp": "^4.0.2",
     "gulp-angular-templatecache": "^1.8.0",
     "gulp-notify": "^2.2.0",
     "gulp-rename": "^1.2.2",
@@ -29,6 +27,7 @@
     "gulp-util": "^3.0.7",
     "marked": "^0.3.5",
     "merge-stream": "^1.0.0",
+    "vinyl-buffer": "^1.0.1",
     "vinyl-source-stream": "^1.1.0"
   }
 }
