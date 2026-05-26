@@ -10,15 +10,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 16
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: npm install
 
-      - name: Run app
+      - name: Start Gulp App
         run: npm start
