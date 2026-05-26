@@ -1,6 +1,7 @@
 var gulp          = require('gulp');
 var notify        = require('gulp-notify');
 var source        = require('vinyl-source-stream');
+var buffer        = require('vinyl-buffer');
 var browserify    = require('browserify');
 var babelify      = require('babelify');
 var ngAnnotate    = require('browserify-ngannotate');
@@ -44,6 +45,7 @@ function browserifyTask() {
       .bundle()
       .on('error', interceptErrors)
       .pipe(source('main.js'))
+      .pipe(buffer())
       .pipe(gulp.dest('./build/'));
 }
 
@@ -54,7 +56,7 @@ function html() {
       .pipe(gulp.dest('./build/'));
 }
 
-// Build Task
+// Production Build Task
 function buildTask() {
 
   var htmlStream = gulp.src("build/index.html")
@@ -67,7 +69,7 @@ function buildTask() {
   return merge(htmlStream, jsStream);
 }
 
-// Browser Sync Task
+// Development Server
 function serve() {
 
   browserSync.init({
@@ -87,22 +89,31 @@ function serve() {
 // Register Tasks
 gulp.task('views', views);
 
-gulp.task('browserify',
+gulp.task(
+  'browserify',
   gulp.series(views, browserifyTask)
 );
 
 gulp.task('html', html);
 
-gulp.task('build',
+gulp.task(
+  'build',
   gulp.series(
-    gulp.parallel(html, gulp.series(views, browserifyTask)),
+    gulp.parallel(
+      html,
+      gulp.series(views, browserifyTask)
+    ),
     buildTask
   )
 );
 
-gulp.task('default',
+gulp.task(
+  'default',
   gulp.series(
-    gulp.parallel(html, gulp.series(views, browserifyTask)),
+    gulp.parallel(
+      html,
+      gulp.series(views, browserifyTask)
+    ),
     serve
   )
 );
