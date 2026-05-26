@@ -21,5 +21,5 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Start Gulp App
+      - name: Run App
         run: npm start
