@@ -17,36 +17,16 @@ var viewFiles = "src/js/**/*.html";
 var interceptErrors = function(error) {
   var args = Array.prototype.slice.call(arguments);
 
-  // Send error to notification center with gulp-notify
   notify.onError({
     title: 'Compile Error',
     message: '<%= error.message %>'
   }).apply(this, args);
 
-  // Keep gulp from hanging on this task
   this.emit('end');
 };
 
-
-gulp.task('browserify', ['views'], function() {
-  return browserify('./src/js/app.js')
-      .transform(babelify, {presets: ["es2015"]})
-      .transform(ngAnnotate)
-      .bundle()
-      .on('error', interceptErrors)
-      //Pass desired output filename to vinyl-source-stream
-      .pipe(source('main.js'))
-      // Start piping stream to tasks!
-      .pipe(gulp.dest('./build/'));
-});
-
-gulp.task('html', function() {
-  return gulp.src("src/index.html")
-      .on('error', interceptErrors)
-      .pipe(gulp.dest('./build/'));
-});
-
-gulp.task('views', function() {
+// Views Task
+function views() {
   return gulp.src(viewFiles)
       .pipe(templateCache({
         standalone: true
@@ -54,24 +34,43 @@ gulp.task('views', function() {
       .on('error', interceptErrors)
       .pipe(rename("app.templates.js"))
       .pipe(gulp.dest('./src/js/config/'));
-});
+}
 
-// This task is used for building production ready
-// minified JS/CSS files into the dist/ folder
-gulp.task('build', ['html', 'browserify'], function() {
-  var html = gulp.src("build/index.html")
-                 .pipe(gulp.dest('./dist/'));
+// Browserify Task
+function browserifyTask() {
+  return browserify('./src/js/app.js')
+      .transform(babelify, { presets: ["es2015"] })
+      .transform(ngAnnotate)
+      .bundle()
+      .on('error', interceptErrors)
+      .pipe(source('main.js'))
+      .pipe(gulp.dest('./build/'));
+}
 
-  var js = gulp.src("build/main.js")
-               .pipe(uglify())
-               .pipe(gulp.dest('./dist/'));
+// HTML Task
+function html() {
+  return gulp.src("src/index.html")
+      .on('error', interceptErrors)
+      .pipe(gulp.dest('./build/'));
+}
 
-  return merge(html,js);
-});
+// Build Task
+function buildTask() {
 
-gulp.task('default', ['html', 'browserify'], function() {
+  var htmlStream = gulp.src("build/index.html")
+      .pipe(gulp.dest('./dist/'));
 
-  browserSync.init(['./build/**/**.**'], {
+  var jsStream = gulp.src("build/main.js")
+      .pipe(uglify())
+      .pipe(gulp.dest('./dist/'));
+
+  return merge(htmlStream, jsStream);
+}
+
+// Browser Sync Task
+function serve() {
+
+  browserSync.init({
     server: "./build",
     port: 4000,
     notify: false,
@@ -80,7 +79,30 @@ gulp.task('default', ['html', 'browserify'], function() {
     }
   });
 
-  gulp.watch("src/index.html", ['html']);
-  gulp.watch(viewFiles, ['views']);
-  gulp.watch(jsFiles, ['browserify']);
-});
+  gulp.watch("src/index.html", html);
+  gulp.watch(viewFiles, views);
+  gulp.watch(jsFiles, gulp.series(views, browserifyTask));
+}
+
+// Register Tasks
+gulp.task('views', views);
+
+gulp.task('browserify',
+  gulp.series(views, browserifyTask)
+);
+
+gulp.task('html', html);
+
+gulp.task('build',
+  gulp.series(
+    gulp.parallel(html, gulp.series(views, browserifyTask)),
+    buildTask
+  )
+);
+
+gulp.task('default',
+  gulp.series(
+    gulp.parallel(html, gulp.series(views, browserifyTask)),
+    serve
+  )
+);
